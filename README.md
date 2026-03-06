@@ -28,30 +28,28 @@ news-ai-java/
 │
 └── src/
     ├── main/
-    │   ├── java/com/newsai/
-    │   │   ├── NewsAiApplication.java
-    │   │   ├── config/
-    │   │   │   ├── NewsController.java       ← Endpoints REST + abre index.html
-    │   │   │   └── SchedulerConfig.java      ← Agendador dinâmico
-    │   │   ├── model/
-    │   │   │   ├── NewsArticle.java
-    │   │   │   ├── NewsApiResponse.java
-    │   │   │   └── UserPreferences.java
-    │   │   ├── service/
-    │   │   │   ├── NewsApiService.java       ← Busca noticias por categoria
-    │   │   │   ├── NewsAIService.java        ← Resume com Claude AI
-    │   │   │   └── EmailService.java         ← Envia email HTML
-    │   │   └── scheduler/
-    │   │       └── NewsScheduler.java        ← Orquestra o pipeline diário
-    │   └── resources/
-    │       ├── application.properties        ← Lê variáveis do .env
-    │       ├── static/
-    │       │   └── index.html                ← Página web de configuração
-    │       └── templates/
-    │           └── email-noticias.html
-    └── test/
-        └── java/com/newsai/
-            └── NewsAiApplicationTests.java
+       ├── java/com/newsai/
+       │   ├── NewsAiApplication.java
+       │   ├── config/
+       │   │   ├── NewsController.java       ← Endpoints REST + abre index.html
+       │   │   └── SchedulerConfig.java      ← Agendador dinâmico
+       │   ├── model/
+       │   │   ├── NewsArticle.java
+       │   │   ├── NewsApiResponse.java
+       │   │   └── UserPreferences.java
+       │   ├── service/
+       │   │   ├── NewsApiService.java       ← Busca noticias por categoria
+       │   │   ├── NewsAIService.java        ← Resume com Claude AI
+       │   │   └── EmailService.java         ← Envia email HTML
+       │   └── scheduler/
+       │       └── NewsScheduler.java        ← Orquestra o pipeline diário
+       └── resources/
+           ├── application.properties        ← Lê variáveis do .env
+           ├── static/
+           │   └── index.html                ← Página web de configuração
+           └── templates/
+               └── email-noticias.html
+ 
 ```
 
 ---
