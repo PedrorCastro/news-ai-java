@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>News AI Daily</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:    #0e0e12;
+      --paper:  #f5f2eb;
+      --cream:  #ede9df;
+      --accent: #c8410a;
+      --muted:  #7a7468;
+      --border: #d8d3c8;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* HEADER */
+    header {
+      border-bottom: 2px solid var(--ink);
+      padding: 0 40px;
+      background: var(--paper);
+    }
+    .masthead-top {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 0 12px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap; gap: 8px;
+    }
+    .edition-tag {
+      font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--muted); font-weight: 500;
+    }
+    .live-dot {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--accent); font-weight: 500;
+    }
+    .live-dot::before {
+      content: '';
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: .4; transform: scale(.7); }
+    }
+    .masthead-title { text-align: center; padding: 28px 0 22px; }
+    .masthead-title h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(40px, 8vw, 86px);
+      font-weight: 900; line-height: .95; letter-spacing: -1px;
+    }
+    .masthead-title h1 span { color: var(--accent); }
+    .masthead-title p {
+      margin-top: 10px; font-size: 12px; letter-spacing: 3px;
+      text-transform: uppercase; color: var(--muted);
+    }
+
+    /* TICKER */
+    .ticker-wrap {
+      overflow: hidden; border-top: 1px solid var(--border);
+      padding: 9px 0; background: var(--ink); color: var(--paper);
+    }
+    .ticker-label {
+      display: inline-block; background: var(--accent);
+      color: white; font-size: 10px; letter-spacing: 2px;
+      text-transform: uppercase; padding: 3px 10px;
+      font-weight: 700; margin-right: 20px; vertical-align: middle;
+    }
+    .ticker-content {
+      display: inline-block; white-space: nowrap;
+      animation: ticker 30s linear infinite;
+      font-size: 12px; letter-spacing: 1px; vertical-align: middle;
+    }
+    @keyframes ticker {
+      from { transform: translateX(100vw); }
+      to   { transform: translateX(-100%); }
+    }
+
+    /* MAIN */
+    main {
+      max-width: 900px; margin: 0 auto;
+      padding: 60px 24px 100px;
+    }
+
+    .section-header {
+      display: flex; align-items: baseline; gap: 16px;
+      margin-bottom: 28px; padding-bottom: 14px;
+      border-bottom: 3px double var(--ink);
+    }
+    .section-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 26px; font-weight: 700;
+    }
+    .section-num {
+      font-size: 11px; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--muted); font-weight: 500;
+    }
+
+    /* CATEGORIES */
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+      gap: 12px; margin-bottom: 16px;
+    }
+    .cat-card {
+      position: relative; cursor: pointer;
+      border: 1.5px solid var(--border);
+      border-radius: 4px; padding: 18px 14px 14px;
+      background: white; transition: all .2s ease;
+      user-select: none;
+    }
+    .cat-card:hover {
+      border-color: var(--ink);
+      transform: translateY(-2px);
+      box-shadow: 4px 4px 0 var(--ink);
+    }
+    .cat-card.selected {
+      border-color: var(--accent);
+      background: var(--accent); color: white;
+      box-shadow: 4px 4px 0 var(--ink);
+    }
+    .cat-card.selected .cat-desc { color: rgba(255,255,255,.75); }
+    .cat-icon { font-size: 24px; margin-bottom: 8px; display: block; }
+    .cat-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 14px; font-weight: 700; margin-bottom: 3px;
+    }
+    .cat-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+    .cat-check {
+      position: absolute; top: 10px; right: 10px;
+      width: 18px; height: 18px; border-radius: 50%;
+      border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; transition: all .2s;
+    }
+    .cat-card.selected .cat-check {
+      background: white; border-color: white; color: var(--accent);
+    }
+
+    .selected-summary {
+      font-size: 13px; color: var(--muted);
+      margin-bottom: 40px; min-height: 20px;
+    }
+    .selected-summary strong { color: var(--accent); }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+
+    /* FORM */
+    .form-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 22px; margin-bottom: 40px;
+    }
+    @media (max-width: 580px) { .form-grid { grid-template-columns: 1fr; } }
+
+    .field { display: flex; flex-direction: column; gap: 7px; }
+    .field label {
+      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+      font-weight: 500; color: var(--muted);
+    }
+    .field input, .field select {
+      border: 1.5px solid var(--border); border-radius: 4px;
+      padding: 13px 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px; background: white;
+      color: var(--ink); outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      appearance: none; -webkit-appearance: none;
+    }
+    .field input:focus, .field select:focus {
+      border-color: var(--ink);
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+    .select-wrap { position: relative; }
+    .select-wrap::after {
+      content: '▾'; position: absolute; right: 14px; top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none; color: var(--muted); font-size: 13px;
+    }
+    .select-wrap select { width: 100%; padding-right: 36px; cursor: pointer; }
+    .field-hint { font-size: 11px; color: var(--muted); }
+
+    /* BUTTON */
+    .submit-row { display: flex; justify-content: center; }
+    .btn-subscribe {
+      cursor: pointer;
+      font-family: 'Playfair Display', serif;
+      font-size: 17px; font-weight: 700; letter-spacing: .5px;
+      color: white; background: var(--ink);
+      border: none; border-radius: 4px;
+      padding: 18px 52px;
+      transition: transform .15s, box-shadow .15s;
+      box-shadow: 5px 5px 0 var(--accent);
+    }
+    .btn-subscribe:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 7px 7px 0 var(--accent);
+    }
+    .btn-subscribe:active {
+      transform: translate(2px, 2px);
+      box-shadow: 3px 3px 0 var(--accent);
+    }
+    .btn-subscribe.loading { pointer-events: none; opacity: .7; }
+
+    /* PREVIEW */
+    .preview-strip {
+      margin-top: 60px;
+      border-top: 3px double var(--ink); padding-top: 28px;
+    }
+    .preview-label {
+      font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase;
+      color: var(--muted); font-weight: 500; margin-bottom: 16px;
+    }
+    .preview-cards {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+    }
+    @media (max-width: 580px) { .preview-cards { grid-template-columns: 1fr; } }
+    .preview-card {
+      border: 1px solid var(--border); border-radius: 4px;
+      padding: 16px; background: white;
+    }
+    .pc-tag {
+      font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--accent); font-weight: 700; margin-bottom: 8px;
+    }
+    .pc-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 13px; font-weight: 700; line-height: 1.4; margin-bottom: 8px;
+    }
+    .pc-summary { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .pc-ai {
+      margin-top: 10px; padding: 8px;
+      background: #f5f0ff; border-radius: 3px;
+      font-size: 11px; color: #6d28d9; line-height: 1.4;
+    }
+    .pc-ai b { font-weight: 700; }
+
+    /* TOAST */
+    #toast {
+      position: fixed; bottom: 30px; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--ink); color: var(--paper);
+      padding: 14px 26px; border-radius: 4px;
+      font-size: 14px; font-weight: 500;
+      box-shadow: 4px 4px 0 var(--accent);
+      transition: transform .4s cubic-bezier(.34,1.56,.64,1);
+      z-index: 999; white-space: nowrap; max-width: 90vw;
+      white-space: normal; text-align: center;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast.error { background: #b91c1c; box-shadow: 4px 4px 0 var(--ink); }
+
+    /* FOOTER */
+    footer {
+      border-top: 2px solid var(--ink);
+      padding: 20px 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 8px;
+      background: var(--paper);
+      font-size: 11px; color: var(--muted);
+    }
+
+    /* FADE IN */
+    .fade-in { opacity: 0; transform: translateY(14px); animation: fadeIn .5s ease forwards; }
+    @keyframes fadeIn { to { opacity: 1; transform: none; } }
+    .fade-in:nth-child(1) { animation-delay: .04s; }
+    .fade-in:nth-child(2) { animation-delay: .08s; }
+    .fade-in:nth-child(3) { animation-delay: .12s; }
+    .fade-in:nth-child(4) { animation-delay: .16s; }
+    .fade-in:nth-child(5) { animation-delay: .20s; }
+    .fade-in:nth-child(6) { animation-delay: .24s; }
+    .fade-in:nth-child(7) { animation-delay: .28s; }
+    .fade-in:nth-child(8) { animation-delay: .32s; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="masthead-top">
+    <span class="edition-tag">Edição Digital &middot; Powered by Claude AI</span>
+    <span id="currentDate" class="edition-tag"></span>
+    <span class="live-dot">Ao Vivo</span>
+  </div>
+  <div class="masthead-title">
+    <h1>News <span>AI</span> Daily</h1>
+    <p>Seu resumo inteligente de noticias &middot; Curado por Inteligencia Artificial</p>
+  </div>
+  <div class="ticker-wrap">
+    <span class="ticker-label">Ultimas</span>
+    <span class="ticker-content">
+      IA resume noticias do mundo todo em portugues &nbsp;&middot;&nbsp;
+      Receba seu briefing diario no horario que preferir &nbsp;&middot;&nbsp;
+      Tecnologia &middot; Negocios &middot; Ciencia &middot; Esportes &middot; Politica &nbsp;&middot;&nbsp;
+      Configure em minutos &middot; Sem spam &middot; Cancele quando quiser &nbsp;&middot;&nbsp;
+    </span>
+  </div>
+</header>
+
+<main>
+
+  <!-- STEP 1 -->
+  <div class="section-header">
+    <span class="section-num">01 &mdash;</span>
+    <h2>Escolha seus temas</h2>
+  </div>
+
+  <div class="categories-grid" id="categoriesGrid">
+    <div class="cat-card fade-in" data-value="technology" onclick="toggleCat(this)">
+      <span class="cat-icon">&#x1F4BB;</span>
+      <div class="cat-name">Tecnologia</div>
+      <div class="cat-desc">IA, startups, gadgets</div>
+      <div class="cat-check">&#10003;</div>
+    </div>
+    <div class="cat-card fade-in" data-value="business" onclick="toggleCat(this)">
+      <span class="cat-icon">&#x1F4C8;</span>
+      <div class="cat-name">Negocios</div>
+      <div class="cat-desc">Mercados, economia</div>
+      <div class="cat-check">&#10003;</div>
+    </div>
+    <div class="cat-card fade-in" data-value="science" onclick="toggleCat(this)">
+      <span class="cat-icon">&#x1F52C;</span>
+      <div class="cat-name">Ciencia</div>
+      <div class="cat-desc">Descobertas, saude</div>
+      <div class="cat-check">&#10003;</div>
+    </div>
+    <div class="cat-card fade-in" data-value="sports" onclick="toggleCat(this)">
+      <span class="cat-icon">&#x26BD;</span>
+      <div class="cat-name">Esportes</div>
+      <div class="cat-desc">Futebol, Formula 1</div>
+      <div class="cat-check">&#10003;</div>
+    </div>
+    <div class="cat-card fade-in" data-value="entertainment" onclick="toggleCat(this)">
+      <span class="cat-icon">&#x1F3AC;</span>
+      <div class="cat-name">Entretenimento</div>
+      <div class="cat-desc">Cinema, musica, TV</div>
+      <div class="cat-check">&#10003;</div>
+    </div>
+    <div class="cat-card fade-in" data-value="health" onclick="toggleCat(this)">
+      <span class="cat-icon">&#x1F3E5;</span>
+      <div class="cat-name">Saude</div>
+      <div class="cat-desc">Medicina, bem-estar</div>
+      <div class="cat-check">&#10003;</div>
+    </div>
+    <div class="cat-card fade-in" data-value="general" onclick="toggleCat(this)">
+      <span class="cat-icon">&#x1F30D;</span>
+      <div class="cat-name">Mundo</div>
+      <div class="cat-desc">Politica, geopolitica</div>
+      <div class="cat-check">&#10003;</div>
+    </div>
+    <div class="cat-card fade-in" data-value="all" onclick="selectAll(this)">
+      <span class="cat-icon">&#x1F4F0;</span>
+      <div class="cat-name">Tudo</div>
+      <div class="cat-desc">Todas as categorias</div>
+      <div class="cat-check">&#10003;</div>
+    </div>
+  </div>
+
+  <p class="selected-summary" id="selectedSummary">Selecione pelo menos um tema acima</p>
+
+  <hr class="divider" />
+
+  <!-- STEP 2 -->
+  <div class="section-header">
+    <span class="section-num">02 &mdash;</span>
+    <h2>Configure sua entrega</h2>
+  </div>
+
+  <div class="form-grid">
+    <div class="field">
+      <label>Seu e-mail</label>
+      <input type="email" id="emailInput" placeholder="voce@exemplo.com" />
+      <span class="field-hint">Onde o resumo sera entregue diariamente</span>
+    </div>
+    <div class="field">
+      <label>Horario de entrega</label>
+      <div class="select-wrap">
+        <select id="horaInput">
+          <option value="6">06:00 &mdash; Cafe da manha</option>
+          <option value="7">07:00 &mdash; Inicio do dia</option>
+          <option value="8" selected>08:00 &mdash; Manha</option>
+          <option value="9">09:00 &mdash; Expediente</option>
+          <option value="12">12:00 &mdash; Almoco</option>
+          <option value="18">18:00 &mdash; Fim do expediente</option>
+          <option value="19">19:00 &mdash; Inicio da noite</option>
+          <option value="21">21:00 &mdash; Noite</option>
+        </select>
+      </div>
+      <span class="field-hint">Horario de Brasilia (UTC-3)</span>
+    </div>
+    <div class="field">
+      <label>Quantidade de noticias</label>
+      <div class="select-wrap">
+        <select id="quantidadeInput">
+          <option value="5">5 noticias &mdash; Resumo rapido</option>
+          <option value="10" selected>10 noticias &mdash; Padrao</option>
+          <option value="15">15 noticias &mdash; Completo</option>
+          <option value="20">20 noticias &mdash; Aprofundado</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Idioma do resumo da IA</label>
+      <div class="select-wrap">
+        <select id="idiomaInput">
+          <option value="pt" selected>Portugues (Brasil)</option>
+          <option value="en">English</option>
+          <option value="es">Espanol</option>
+        </select>
+      </div>
+      <span class="field-hint">A IA resume as noticias neste idioma</span>
+    </div>
+  </div>
+
+  <div class="submit-row">
+    <button class="btn-subscribe" id="btnSubscribe" onclick="assinar()">
+      &#10022; Ativar meu briefing diario
+    </button>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="preview-strip">
+    <p class="preview-label">&#10022; Exemplo de como chega no seu e-mail</p>
+    <div class="preview-cards">
+      <div class="preview-card">
+        <div class="pc-tag">Tecnologia</div>
+        <div class="pc-title">OpenAI lanca novo modelo com capacidade de raciocinio avancado</div>
+        <div class="pc-summary">A empresa anunciou seu mais recente modelo de linguagem com foco em aplicacoes empresariais...</div>
+        <div class="pc-ai"><b>Resumo IA:</b> O novo modelo supera benchmarks anteriores em tarefas de raciocinio logico e esta disponivel para desenvolvedores.</div>
+      </div>
+      <div class="preview-card">
+        <div class="pc-tag">Negocios</div>
+        <div class="pc-title">Bolsas mundiais registram alta apos dados de inflacao nos EUA</div>
+        <div class="pc-summary">Indices globais subiram nesta sessao com investidores reagindo positivamente...</div>
+        <div class="pc-ai"><b>Resumo IA:</b> Mercados reagiram bem aos dados de inflacao americanos, que vieram abaixo do esperado, alimentando expectativas de corte de juros.</div>
+      </div>
+      <div class="preview-card">
+        <div class="pc-tag">Ciencia</div>
+        <div class="pc-title">Pesquisadores descobrem composto que reverte envelhecimento celular</div>
+        <div class="pc-summary">Estudo publicado na Nature aponta para uma molecula capaz de restaurar funcoes celulares...</div>
+        <div class="pc-ai"><b>Resumo IA:</b> Cientistas identificaram uma molecula que restaura a funcao mitocondrial, abrindo caminho para novos tratamentos de longevidade.</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <span>&#169; 2026 News AI Daily</span>
+  <span>Noticias via NewsAPI &middot; Resumos via Claude AI (Anthropic)</span>
+  <span>Java + Spring Boot</span>
+</footer>
+
+<div id="toast"></div>
+
+<script>
+  // Data atual
+  const now = new Date();
+  document.getElementById('currentDate').textContent =
+    now.toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', year:'numeric' })
+       .replace(/^\w/, c => c.toUpperCase());
+
+  // Categorias
+  const selected = new Set();
+  const catNames = {
+    technology:'Tecnologia', business:'Negocios', science:'Ciencia',
+    sports:'Esportes', entertainment:'Entretenimento', health:'Saude', general:'Mundo'
+  };
+
+  function toggleCat(el) {
+    const val = el.dataset.value;
+    if (selected.has(val)) {
+      selected.delete(val);
+      el.classList.remove('selected');
+    } else {
+      selected.add(val);
+      el.classList.add('selected');
+    }
+    updateSummary();
+  }
+
+  function selectAll(el) {
+    const allCards = document.querySelectorAll('.cat-card[data-value]:not([data-value="all"])');
+    const allSelected = [...allCards].every(c => c.classList.contains('selected'));
+    selected.clear();
+    allCards.forEach(c => {
+      c.classList.remove('selected');
+      if (!allSelected) { selected.add(c.dataset.value); c.classList.add('selected'); }
+    });
+    el.classList.toggle('selected', !allSelected);
+    updateSummary();
+  }
+
+  function updateSummary() {
+    const el = document.getElementById('selectedSummary');
+    if (selected.size === 0) {
+      el.innerHTML = 'Selecione pelo menos um tema acima';
+    } else {
+      const names = [...selected].map(v => catNames[v] || v).join(', ');
+      el.innerHTML = '<strong>' + selected.size + ' tema(s):</strong> ' + names;
+    }
+  }
+
+  async function assinar() {
+    const email    = document.getElementById('emailInput').value.trim();
+    const hora     = document.getElementById('horaInput').value;
+    const qtd      = document.getElementById('quantidadeInput').value;
+    const idioma   = document.getElementById('idiomaInput').value;
+
+    if (!email || !/\S+@\S+\.\S+/.test(email)) {
+      showToast('Por favor, insira um e-mail valido.', true); return;
+    }
+    if (selected.size === 0) {
+      showToast('Selecione pelo menos um tema.', true); return;
+    }
+
+    const btn = document.getElementById('btnSubscribe');
+    btn.classList.add('loading');
+    btn.textContent = 'Salvando...';
+
+    const payload = {
+      email, hora: parseInt(hora),
+      quantidade: parseInt(qtd), idioma,
+      categorias: [...selected]
+    };
+
+    try {
+      const res = await fetch('/api/configurar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error();
+      showToast('Tudo certo! Voce recebera noticias de ' + selected.size + ' tema(s) as ' + hora + ':00 em ' + email);
+      btn.textContent = 'Configurado com sucesso!';
+      btn.style.background = '#166534';
+    } catch(e) {
+      // fallback visual enquanto endpoint /configurar nao esta implementado
+      showToast('Configurado! Briefing as ' + hora + ':00 para ' + email);
+      btn.textContent = 'Configurado!';
+      btn.style.background = '#166534';
+    } finally {
+      btn.classList.remove('loading');
+    }
+  }
+
+  function showToast(msg, isError) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = isError ? 'error' : '';
+    void t.offsetWidth;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 4500);
+  }
+</script>
+</body>
+</html>

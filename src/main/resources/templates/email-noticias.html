@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<!--
+    📄 email-noticias.html — Template HTML do Email
+    
+    Este arquivo é processado pelo Thymeleaf (motor de templates do Spring).
+    Thymeleaf substitui as expressões th:* e ${...} pelos valores reais em tempo de execução.
+    
+    Como funciona:
+    - th:text="${variavel}"  → insere texto escapado (seguro contra XSS)
+    - th:utext="${variavel}" → insere HTML bruto (usado para conteúdo confiável)
+    - th:each="item : ${lista}" → loop, equivale ao for-each do Java
+    - th:if="${condicao}"   → renderiza o bloco só se a condição for verdadeira
+    - th:href="@{${url}}"  → gera um link com URL dinâmica
+-->
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notícias Diárias — News AI</title>
+    <style>
+        /* Reset básico para compatibilidade com clientes de email */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+        }
+
+        /* Container principal — centralizado e com largura máxima */
+        .container {
+            max-width: 680px;
+            margin: 30px auto;
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+        }
+
+        /* Cabeçalho com gradiente escuro */
+        .header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .header h1 { font-size: 30px; letter-spacing: 1px; }
+        .header .data { color: #a0c4ff; font-size: 14px; margin-top: 8px; }
+        .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 12px;
+            margin-top: 12px;
+        }
+
+        /* Bloco de introdução da IA */
+        .intro {
+            background: #e8f4fd;
+            padding: 22px 30px;
+            border-left: 5px solid #0f3460;
+            font-size: 15px;
+            line-height: 1.7;
+            color: #2c3e50;
+        }
+
+        /* Área de conteúdo das notícias */
+        .content { padding: 24px 30px; }
+
+        /* Card de cada notícia */
+        .article {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            margin-bottom: 22px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        /* Imagem de capa da notícia */
+        .article-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Cabeçalho do card: fonte + título */
+        .article-header {
+            background: #f8fafc;
+            padding: 14px 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .article-source {
+            color: #0f3460;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+        .article-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
+        /* Corpo do card: descrição + resumo IA + link */
+        .article-body { padding: 16px 20px; }
+        .article-desc {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 14px;
+        }
+
+        /* Caixa do resumo gerado pela IA */
+        .ai-summary {
+            background: linear-gradient(135deg, #e8f4fd 0%, #f0e8fd 100%);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+        }
+        .ai-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #7c3aed;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+        .ai-text {
+            color: #2d3748;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Botão "Ler mais" */
+        .read-more {
+            display: inline-block;
+            background: #0f3460;
+            color: #ffffff !important;
+            padding: 9px 20px;
+            border-radius: 22px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Rodapé */
+        .footer {
+            background: #1a1a2e;
+            color: #94a3b8;
+            text-align: center;
+            padding: 24px 30px;
+            font-size: 12px;
+            line-height: 1.8;
+        }
+        .footer a { color: #a0c4ff; text-decoration: none; }
+
+        /* Badge contador de notícias */
+        .news-count {
+            background: #0f3460;
+            color: white;
+            border-radius: 12px;
+            padding: 3px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- ===== CABEÇALHO ===== -->
+    <div class="header">
+        <h1>🌍 Notícias Diárias</h1>
+        <!--
+            th:text="${dataHoje}" → Spring substitui pelo valor da variável "dataHoje"
+            passada pelo EmailService ao processar o template
+        -->
+        <div class="data" th:text="${dataHoje}">15 de janeiro de 2025</div>
+        <div class="badge">
+            🤖 Resumos gerados por IA
+            <!-- th:text concatena texto fixo com variável dinâmica -->
+            <span class="news-count" th:text="${#lists.size(artigos)} + ' notícias'">10 notícias</span>
+        </div>
+    </div>
+
+    <!-- ===== INTRODUÇÃO GERADA PELA IA ===== -->
+    <!--
+        th:utext → renderiza HTML. Usamos aqui pois o texto pode conter formatação.
+        Diferente de th:text que escapa os caracteres HTML.
+    -->
+    <div class="intro" th:utext="${introducao}">
+        Bom dia! Aqui está seu resumo personalizado de notícias de hoje.
+    </div>
+
+    <!-- ===== LISTA DE NOTÍCIAS ===== -->
+    <div class="content">
+        <div class="section-title">📰 Principais Notícias</div>
+
+        <!--
+            th:each="artigo : ${artigos}" → loop sobre a lista de artigos.
+            Para cada elemento (chamado "artigo"), renderiza este bloco div.
+            Equivale ao Java: for (NewsArticle artigo : artigos) { ... }
+        -->
+        <div class="article" th:each="artigo : ${artigos}">
+
+            <!-- Imagem de capa — th:if verifica se existe antes de renderizar -->
+            <img class="article-img"
+                 th:if="${artigo.urlToImage != null and !artigo.urlToImage.isEmpty()}"
+                 th:src="${artigo.urlToImage}"
+                 th:alt="${artigo.title}"
+                 onerror="this.style.display='none'"/>
+
+            <!-- Cabeçalho do card: fonte e título -->
+            <div class="article-header">
+                <div class="article-source">
+                    📰 <span th:text="${artigo.sourceName}">Fonte</span>
+                </div>
+                <div class="article-title" th:text="${artigo.title}">
+                    Título da notícia aqui
+                </div>
+            </div>
+
+            <!-- Corpo do card -->
+            <div class="article-body">
+
+                <!-- Descrição original (só aparece se não for nula) -->
+                <p class="article-desc"
+                   th:if="${artigo.description != null and !artigo.description.isEmpty()}"
+                   th:text="${artigo.description}">
+                    Descrição da notícia aqui...
+                </p>
+
+                <!-- Resumo da IA (só aparece se foi gerado) -->
+                <div class="ai-summary"
+                     th:if="${artigo.aiSummary != null and !artigo.aiSummary.isEmpty()}">
+                    <div class="ai-label">🤖 Resumo por IA</div>
+                    <div class="ai-text" th:text="${artigo.aiSummary}">
+                        Resumo gerado pela IA aparece aqui.
+                    </div>
+                </div>
+
+                <!-- Botão de link para a notícia original -->
+                <a class="read-more"
+                   th:href="${artigo.url}"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                    Ler notícia completa →
+                </a>
+
+            </div>
+        </div>
+        <!-- Fim do th:each -->
+
+    </div>
+    <!-- Fim do .content -->
+
+    <!-- ===== RODAPÉ ===== -->
+    <div class="footer">
+        <p>Este email foi gerado automaticamente pelo <strong>News AI Daily</strong></p>
+        <p>
+            Notícias por <a href="https://newsapi.org" target="_blank">NewsAPI</a>
+            &nbsp;•&nbsp;
+            Resumos por <a href="https://anthropic.com" target="_blank">Claude AI (Anthropic)</a>
+        </p>
+        <p style="margin-top: 8px; color: #64748b;">
+            Para cancelar o recebimento, pare a aplicação ou altere o <code>application.properties</code>
+        </p>
+    </div>
+
+</div><!-- Fim do .container -->
+
+</body>
+</html>

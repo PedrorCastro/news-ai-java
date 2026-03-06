@@ -1,0 +1,33 @@
+# ============================================================
+# .gitignore — Arquivos que NAO vao para o GitHub
+# ============================================================
+
+# SEGURANCA: variaveis de ambiente com senhas e chaves
+.env
+
+# Maven
+target/
+*.class
+*.jar
+*.war
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Spring Boot
+spring.log
